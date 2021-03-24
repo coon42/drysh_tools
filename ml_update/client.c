@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <sys/socket.h>
+#include <netdb.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <string.h>
@@ -7,7 +8,17 @@
 #include <dryos_hal.h>
 #include "protocol.h"
 
-int main(int argc, char const *argv[]) {
+int main(int argc, char const* pArgv[]) {
+  const char *pProgramName = "client";
+
+  if(argc < 2) {
+    printf("Usage: %s <host name or IP>\n", pProgramName);
+
+    return 1;
+  }
+
+  const char* pHostName = pArgv[1];
+
   int clientFd;
 
   if ((clientFd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
@@ -15,12 +26,27 @@ int main(int argc, char const *argv[]) {
     return -1;
   }
 
+  // Resolve DNS name:
+  struct hostent* pHostend;
+
+  if ((pHostend = gethostbyname(pHostName)) == NULL) {
+    herror("gethostbyname");
+    return 1;
+  }
+
+  struct in_addr** ppAddrList = (struct in_addr**)pHostend->h_addr_list;
+
+  char pServerIp[64];
+
+  for(int i = 0; ppAddrList[i] != NULL; i++)
+    strcpy(pServerIp , inet_ntoa(*ppAddrList[i]));
+
+  printf("'%s' resolved to: %s\n", pHostName, pServerIp);
+  // -- end of resolve
+
   struct sockaddr_in serv_addr;
   serv_addr.sin_family = AF_INET;
   serv_addr.sin_port = htons(2342);
-
-  const char* pServerIp = "192.168.1.100";
-  // const char* pServerIp = "127.0.0.1";
 
   if(inet_pton(AF_INET, pServerIp, &serv_addr.sin_addr)<=0) {
     printf("\nInvalid address/ Address not supported \n");
@@ -37,7 +63,7 @@ int main(int argc, char const *argv[]) {
   FILE* pFile = fopen(pFileName, "rb");
 
   if (!pFile) {
-    printf("Error, file '%s' not found!\n", pFileName);
+    printf("Error: file '%s' not found!\n", pFileName);
     return -1;
   }
 
