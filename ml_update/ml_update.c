@@ -238,7 +238,7 @@ static int performUpdate(int clientFd) {
   uart_printf("checksum ok\n");
 
   char pTargetFileName[128];
-  snprintf(pTargetFileName, sizeof(pTargetFileName), "B:/recv_%s", req.pFileName);
+  snprintf(pTargetFileName, sizeof(pTargetFileName), "B:/%s", req.pFileName);
 
   FIO_RemoveFile(pTargetFileName);
 
