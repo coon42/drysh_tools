@@ -75,7 +75,7 @@ int main(int argc, char const* pArgv[]) {
   strncpy(msg.pFileName, pFileName, sizeof(msg.pFileName));
   msg.fileSize = fileSize;
 
-  Md5_Final(0, msg.pMd5Hash); // TODO: dirty hack! calculate MD5 hash properly!
+  ShaXFinal(0, 0, msg.pSha256Hash); // TODO: dirty hack! calculate SHA-256 hash properly!
 
   msg.protocolVersion = 0;
 

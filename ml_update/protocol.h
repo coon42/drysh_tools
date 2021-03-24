@@ -11,7 +11,7 @@ typedef enum {
 typedef struct {
   char pFileName[64];
   uint64_t fileSize;
-  uint8_t pMd5Hash[16];
+  uint8_t pSha256Hash[32];
   int protocolVersion;
 } AnnounceFileReqMsg_t;
 

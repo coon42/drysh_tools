@@ -70,10 +70,10 @@ static int recvRequest(int clientFd, AnnounceFileReqMsg_t* pReq) {
   uart_printf("File announce message received: \n");
   uart_printf("File Name: %s\n", pReq->pFileName);
   uart_printf("File size: %lld\n", pReq->fileSize);
-  uart_printf("MD5 Hash: ");
+  uart_printf("SHA-256 Hash: ");
 
-  for (int i = 0; i < sizeof(pReq->pMd5Hash); ++i)
-    uart_printf("%02X", pReq->pMd5Hash[i]);
+  for (int i = 0; i < sizeof(pReq->pSha256Hash); ++i)
+    uart_printf("%02X", pReq->pSha256Hash[i]);
 
   uart_printf("\n");
   uart_printf("Protocol Version: %d\n", pReq->protocolVersion);
@@ -153,7 +153,7 @@ static int performUpdate(int clientFd) {
   int dummy = 42;
   socket_send(clientFd, &dummy, 1, 0);
 
-  uart_printf("Now checking MD5\n");
+  uart_printf("Now checking SHA-256\n");
 
   size64_t fileSize64 = {0};
 
@@ -164,19 +164,19 @@ static int performUpdate(int clientFd) {
 
   uint32_t fileSize = fileSize64.lo; // TODO: will break on files bigger than 4GB! Fix!
 
-  Md5Ctx* pMd5Ctx = 0;
-  Md5_AllocAndInit(&pMd5Ctx);
+  void* pSha256Ctx = 0;
+  Sha256Init(&pSha256Ctx);
 
   uart_printf("file size of reopened file is: %d (lo: %d, hi: %d)\n", fileSize, fileSize64.lo, fileSize64.hi);
 
   pBuffer = malloc(recvBufferSize);
 
   if (!pBuffer) {
-    uart_printf("failed to create MD5 working buffer!\n");
+    uart_printf("failed to create SHA-256 working buffer!\n");
     return 0;
   }
 
-  uart_printf("Start MD5 calc\n");
+  uart_printf("Start SHA-256 calc\n");
 
   pFile = FIO_OpenFile(pTempFile, O_RDONLY);
 
@@ -192,12 +192,12 @@ static int performUpdate(int clientFd) {
     int chunkSize = FIO_ReadFile(pFile, pBuffer, recvBufferSize);
 
     if (chunkSize < 0) {
-      uart_printf("error on reading file during MD5 check!\n");
+      uart_printf("error on reading file during SHA-256 check!\n");
       return 1;
     }
 
     uart_printf("read: %d\n", chunkSize);
-    Md5_Update(pMd5Ctx, pBuffer, chunkSize);
+    ShaXUpdate(pSha256Ctx, Sha256_Transform, pBuffer, chunkSize);
 
     bytesRead += chunkSize;
   }
@@ -205,27 +205,29 @@ static int performUpdate(int clientFd) {
   free(pBuffer);
   FIO_CloseFile(pFile);
 
-  uint8_t pMd5Hash[16];
-  Md5_FinalAndFree(pMd5Ctx, pMd5Hash);
+  uint8_t pSha256Hash[32];
+  ShaXFinal(pSha256Ctx, Sha256_Transform, pSha256Hash);
 
-  uart_printf("MD5 calc finish\n");
+  free(pSha256Ctx);
+
+  uart_printf("SHA-256 calc finish\n");
   uart_printf("calculated: ");
 
-  for (int i = 0; i < sizeof(pMd5Hash); ++i)
-    uart_printf("%02X", pMd5Hash[i]);
+  for (int i = 0; i < sizeof(pSha256Hash); ++i)
+    uart_printf("%02X", pSha256Hash[i]);
 
   uart_printf("\n");
 
   uart_printf("expected: ");
 
-  for (int i = 0; i < sizeof(pMd5Hash); ++i)
-    uart_printf("%02X", req.pMd5Hash[i]);
+  for (int i = 0; i < sizeof(pSha256Hash); ++i)
+    uart_printf("%02X", req.pSha256Hash[i]);
 
   uart_printf("\n");
 
-  for (int i = 0; i < sizeof(pMd5Hash); ++i) {
-    if (pMd5Hash[i] != req.pMd5Hash[i]) {
-      uart_printf("Error: MD5 checksum mismatch!\n");
+  for (int i = 0; i < sizeof(pSha256Hash); ++i) {
+    if (pSha256Hash[i] != req.pSha256Hash[i]) {
+      uart_printf("Error: SHA-256 checksum mismatch!\n");
       return -1;
     }
   }
