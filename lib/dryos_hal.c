@@ -277,7 +277,7 @@ void Sha256_Transform(void* pData, uint32_t* pH) {
 // TODO: super dirty hack! Do proper SHA-256 calculation!
 
 int ShaXFinal(void* pCtx, void* pTransFormFunction, uint8_t* pFinalHash) {
-  FILE* pFile = popen("/usr/bin/sha256 AUTOEXEC.BIN", "r");
+  FILE* pFile = popen("/usr/bin/sha256sum AUTOEXEC.BIN", "r");
 
   if (pFile == NULL) {
     printf("Failed to run command\n" );
