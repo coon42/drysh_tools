@@ -77,7 +77,7 @@ int main(int argc, char const* pArgv[]) {
 
   ShaXFinal(0, 0, msg.pSha256Hash); // TODO: dirty hack! calculate SHA-256 hash properly!
 
-  msg.protocolVersion = 0;
+  msg.protocolVersion = 1;
 
   send(clientFd, &msg, sizeof(msg), 0);
   printf("Announce File Msg sent\n");

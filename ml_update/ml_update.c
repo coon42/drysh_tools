@@ -62,7 +62,7 @@ static int recvRequest(int clientFd, AnnounceFileReqMsg_t* pReq) {
   // TODO: check for TCP error:
   socket_recv(clientFd, pReq, sizeof(AnnounceFileReqMsg_t), 0);
 
-  if (pReq->protocolVersion != 0)
+  if (pReq->protocolVersion != 1)
     return ANNOUNCE_STATUS_UNSUPPORTED_VERSION;
 
   pReq->pFileName[sizeof(pReq->pFileName) -1] = 0;
