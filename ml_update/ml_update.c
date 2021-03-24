@@ -207,8 +207,7 @@ static int performUpdate(int clientFd) {
 
   uint8_t pSha256Hash[32];
   ShaXFinal(pSha256Ctx, Sha256_Transform, pSha256Hash);
-
-  free(pSha256Ctx);
+  ShaXFree(&pSha256Ctx);
 
   uart_printf("SHA-256 calc finish\n");
   uart_printf("calculated: ");
