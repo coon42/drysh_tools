@@ -96,7 +96,7 @@ static int performUpdate(int clientFd) {
 
   uart_printf("Now receiving file...\n");
 
-  const char* pTempFile = "B:/file.tmp";
+  const char* pTempFile = "B:/FILE.TMP";
 
   FIO_RemoveFile(pTempFile);
 
