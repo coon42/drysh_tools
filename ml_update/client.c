@@ -53,11 +53,11 @@ int main(int argc, char const *argv[]) {
 
   msg.protocolVersion = 0;
 
-  send(c, &msg, sizeof(msg), 0);
+  send(clientFd, &msg, sizeof(msg), 0);
   printf("Announce File Msg sent\n");
 
   AnnounceFileRspMsg_t rsp;
-  int valread = read(c, &rsp, sizeof(AnnounceFileRspMsg_t));
+  int valread = read(clientFd, &rsp, sizeof(AnnounceFileRspMsg_t));
 
   printf("[Bytes recevied: %d]: Status: %d\n", valread, rsp.status);
 
@@ -76,7 +76,7 @@ int main(int argc, char const *argv[]) {
   for (bytesSent = 0; bytesSent < fileSize;) {
     int chunkSize = fread(pBuffer, 1, sizeof(pBuffer), pFile);
 
-    int sent = send(c, pBuffer, chunkSize, 0);
+    int sent = send(clientFd, pBuffer, chunkSize, 0);
 
     printf("sent: %d\n", sent);
 
@@ -92,7 +92,7 @@ int main(int argc, char const *argv[]) {
 
   printf("waiting for sync with server\n");
 
-  int r = read(c, pBuffer, 100);
+  int r = read(clientFd, pBuffer, 100);
 
   if (r == 0 || pBuffer[0] != 42) {
     printf("Sync error!\n");
