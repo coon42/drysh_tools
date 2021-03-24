@@ -107,5 +107,14 @@ void Md5_Final(Md5Ctx *pCtx, uint8_t* pMd5HashOut);
 int Md5_AllocAndInit(Md5Ctx** pCtx);
 void Md5_FinalAndFree(Md5Ctx* pMd5Ctx, uint8_t* pMd5HashOut);
 
+//-------------------------------------------------------------------------------------------------------------
+// SHA-256
+//-------------------------------------------------------------------------------------------------------------
+
+int Sha256Init(void** ppSha256Ctx);
+int ShaXUpdate(void* pCtx, void* pTransformFunction, uint8_t* pData, size_t size);
+void Sha256_Transform(void* pData, uint32_t* pH);
+int ShaXFinal(void* pCtx, void* pTransFormFunction, uint8_t* pFinalHash);
+
 #endif // _DRYOS_HAL_H
 

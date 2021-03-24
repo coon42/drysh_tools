@@ -253,3 +253,58 @@ void Md5_FinalAndFree(Md5Ctx* pMd5Ctx, uint8_t* pMd5HashOut) {
   free(pMd5Ctx);
 }
 
+//-------------------------------------------------------------------------------------------------------------
+// SHA-256
+//-------------------------------------------------------------------------------------------------------------
+
+int Sha256Init(void** ppSha256Ctx) {
+  if (ppSha256Ctx)
+    return -1;
+
+  *ppSha256Ctx = malloc(228);
+
+  return 0;
+}
+
+int ShaXUpdate(void* pCtx, void* pTransformFunction, uint8_t* pData, size_t size) {
+  return 0; // TODO: implement
+}
+
+void Sha256_Transform(void* pData, uint32_t* pH) {
+
+}
+
+// TODO: super dirty hack! Do proper SHA-256 calculation!
+
+int ShaXFinal(void* pCtx, void* pTransFormFunction, uint8_t* pFinalHash) {
+  FILE* pFile = popen("/usr/bin/sha256 AUTOEXEC.BIN", "r");
+
+  if (pFile == NULL) {
+    printf("Failed to run command\n" );
+    exit(1);
+  }
+
+  char pOutput[1024];
+  fgets(pOutput, sizeof(pOutput), pFile);
+  pclose(pFile);
+
+  const char* p = pOutput;
+
+  for (int i = 0; i < 32; ++i) {
+    char pByte[3] = {0};
+    pByte[0] = p[0];
+    pByte[1] = p[1];
+
+    int val;
+    sscanf(pByte, "%02X", &val);
+
+    pFinalHash[i] = (uint8_t)val;
+
+    p += 2;
+  }
+
+  printf("\n");
+
+  return 0;
+}
+
