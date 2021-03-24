@@ -104,5 +104,8 @@ void Md5_Init(Md5Ctx* pCtx);
 void Md5_Update(Md5Ctx* pCtx, void* pData, size_t size);
 void Md5_Final(Md5Ctx *pCtx, uint8_t* pMd5HashOut);
 
+int Md5_AllocAndInit(Md5Ctx** pCtx);
+void Md5_FinalAndFree(Md5Ctx* pMd5Ctx, uint8_t* pMd5HashOut);
+
 #endif // _DRYOS_HAL_H
 

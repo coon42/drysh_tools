@@ -236,3 +236,20 @@ void Md5_Final(Md5Ctx* pCtx, uint8_t* pMd5HashOut) {
   printf("\n");
 }
 
+int Md5_AllocAndInit(Md5Ctx** ppCtx) {
+  if (!ppCtx)
+    return -1;
+
+  *ppCtx = (Md5Ctx*)malloc(sizeof(Md5Ctx));
+
+  return 0;
+}
+
+void Md5_FinalAndFree(Md5Ctx* pMd5Ctx, uint8_t* pMd5HashOut) {
+  if (!pMd5Ctx)
+    return;
+
+  Md5_Final(pMd5Ctx, pMd5HashOut);
+  free(pMd5Ctx);
+}
+
