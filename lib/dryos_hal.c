@@ -207,7 +207,7 @@ void Md5_Update(Md5Ctx* pCtx, void* pData, size_t size) {
 // TODO: super dirty hack! Do proper MD5 calculation!
 
 void Md5_Final(Md5Ctx* pCtx, uint8_t* pMd5HashOut) {
-  FILE* pFile = popen("/usr/bin/md5sum AUTOEXEC.BIN", "r");
+  FILE* pFile = popen("/usr/bin/md5sum autoexec.bin", "r");
 
   if (pFile == NULL) {
     printf("Failed to run command\n" );
@@ -277,7 +277,7 @@ void Sha256_Transform(void* pData, uint32_t* pH) {
 // TODO: super dirty hack! Do proper SHA-256 calculation!
 
 int ShaXFinal(void* pCtx, void* pTransFormFunction, uint8_t* pFinalHash) {
-  FILE* pFile = popen("/usr/bin/sha256sum AUTOEXEC.BIN", "r");
+  FILE* pFile = popen("/usr/bin/sha256sum autoexec.bin", "r");
 
   if (pFile == NULL) {
     printf("Failed to run command\n" );

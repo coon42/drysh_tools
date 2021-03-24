@@ -4,6 +4,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <string.h>
+#include <ctype.h>
 
 #include <dryos_hal.h>
 #include "protocol.h"
@@ -58,7 +59,7 @@ int main(int argc, char const* pArgv[]) {
     return -1;
   }
 
-  const char* pFileName = "AUTOEXEC.BIN";
+  const char* pFileName = "autoexec.bin";
 
   FILE* pFile = fopen(pFileName, "rb");
 
@@ -72,7 +73,11 @@ int main(int argc, char const* pArgv[]) {
   rewind(pFile);
 
   AnnounceFileReqMsg_t msg;
-  strncpy(msg.pFileName, pFileName, sizeof(msg.pFileName));
+  memset(&msg, 0, sizeof(AnnounceFileReqMsg_t));
+
+  for (int i = 0; pFileName[i] && (i < sizeof(msg.pFileName) - 1); ++i)
+    msg.pFileName[i] = toupper(pFileName[i]);
+
   msg.fileSize = fileSize;
 
   ShaXFinal(0, 0, msg.pSha256Hash); // TODO: dirty hack! calculate SHA-256 hash properly!

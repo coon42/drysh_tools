@@ -51,6 +51,6 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-ml_update/AUTOEXEC.BIN
+ml_update/autoexec.bin
 ml_update/client
 ml_update/server
