@@ -32,7 +32,7 @@ int main(int argc, char const *argv[]) {
     return -1;
   }
 
-  const char* pFileName = "autoexec.bin";
+  const char* pFileName = "AUTOEXEC.BIN";
 
   FILE* pFile = fopen(pFileName, "rb");
 
