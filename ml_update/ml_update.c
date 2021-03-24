@@ -245,8 +245,6 @@ static int performUpdate(int clientFd) {
     return 1;
   }
 
-  // TODO: reboot
-
   return 0;
 }
 
@@ -281,7 +279,10 @@ int drysh_ml_update(int argc, char const *argv[]) {
     return 1;
   }
 
-  uart_printf("Update successful! You may now reboot your camera\n");
+  uart_printf("Update successful!\n");
+  uart_printf("Rebooting...\n");
+
+  reboot();
 
   return 0;
 }
