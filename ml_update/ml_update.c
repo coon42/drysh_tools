@@ -164,8 +164,8 @@ static int performUpdate(int clientFd) {
 
   uint32_t fileSize = fileSize64.lo; // TODO: will break on files bigger than 4GB! Fix!
 
-  Md5Ctx md5Ctx;
-  Md5_Init(&md5Ctx);
+  Md5Ctx* pMd5Ctx = 0;
+  Md5_AllocAndInit(&pMd5Ctx);
 
   uart_printf("file size of reopened file is: %d (lo: %d, hi: %d)\n", fileSize, fileSize64.lo, fileSize64.hi);
 
@@ -197,7 +197,7 @@ static int performUpdate(int clientFd) {
     }
 
     uart_printf("read: %d\n", chunkSize);
-    Md5_Update(&md5Ctx, pBuffer, chunkSize);
+    Md5_Update(pMd5Ctx, pBuffer, chunkSize);
 
     bytesRead += chunkSize;
   }
@@ -206,7 +206,7 @@ static int performUpdate(int clientFd) {
   FIO_CloseFile(pFile);
 
   uint8_t pMd5Hash[16];
-  Md5_Final(&md5Ctx, pMd5Hash);
+  Md5_FinalAndFree(pMd5Ctx, pMd5Hash);
 
   uart_printf("MD5 calc finish\n");
   uart_printf("calculated: ");
