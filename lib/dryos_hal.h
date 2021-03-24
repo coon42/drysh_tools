@@ -10,6 +10,7 @@
 
 int uart_printf(const char* pFormat, ...);
 void printError(const char* pErrorMsg);
+void reboot();
 
 //-------------------------------------------------------------------------------------------------------------
 // Sockets
