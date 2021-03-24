@@ -115,6 +115,7 @@ int Sha256Init(void** ppSha256Ctx);
 int ShaXUpdate(void* pCtx, void* pTransformFunction, uint8_t* pData, size_t size);
 void Sha256_Transform(void* pData, uint32_t* pH);
 int ShaXFinal(void* pCtx, void* pTransFormFunction, uint8_t* pFinalHash);
+void ShaXFree(void** ppSha256Ctx);
 
 #endif // _DRYOS_HAL_H
 

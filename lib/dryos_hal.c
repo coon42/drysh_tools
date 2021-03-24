@@ -308,3 +308,9 @@ int ShaXFinal(void* pCtx, void* pTransFormFunction, uint8_t* pFinalHash) {
   return 0;
 }
 
+void ShaXFree(void** ppSha256Ctx) {
+  if (ppSha256Ctx) {
+    if (*ppSha256Ctx)
+      free(*ppSha256Ctx);
+  }
+}
