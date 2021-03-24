@@ -167,11 +167,6 @@ static int performUpdate(int clientFd) {
   Md5Ctx md5Ctx;
   Md5_Init(&md5Ctx);
 
-  if (fileSize > 20 * 1024) {
-    uart_printf("file is bigger than 20KB! aborting!\n");
-    return 1;
-  }
-
   uart_printf("file size of reopened file is: %d (lo: %d, hi: %d)\n", fileSize, fileSize64.lo, fileSize64.hi);
 
   pBuffer = malloc(recvBufferSize);
