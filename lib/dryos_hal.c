@@ -11,6 +11,10 @@
 // Common
 //-------------------------------------------------------------------------------------------------------------
 
+void* _alloc_dma_memory(size_t size) {
+  return malloc(size);
+}
+
 int* errno_get_pointer_to() {
   return &errno;
 }
