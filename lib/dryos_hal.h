@@ -9,6 +9,8 @@
 //-------------------------------------------------------------------------------------------------------------
 
 void* _alloc_dma_memory(size_t size);
+void _free_dma_memory(void* ptr);
+
 int uart_printf(const char* pFormat, ...);
 void printError(const char* pErrorMsg);
 void reboot();
