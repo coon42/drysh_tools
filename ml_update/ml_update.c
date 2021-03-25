@@ -108,7 +108,7 @@ static int performUpdate(int clientFd) {
   }
 
   const size_t recvBufferSize = 1024;
-  uint8_t* pBuffer = malloc(recvBufferSize);
+  uint8_t* pBuffer = _alloc_dma_memory(recvBufferSize);
 
   uint64_t bytesReceived;
 
@@ -136,7 +136,7 @@ static int performUpdate(int clientFd) {
     bytesReceived += chunkSize;
   }
 
-  free(pBuffer);
+  _free_dma_memory(pBuffer);
   pBuffer = 0;
 
   FIO_CloseFile(pFile);
@@ -169,7 +169,7 @@ static int performUpdate(int clientFd) {
 
   uart_printf("file size of reopened file is: %d (lo: %d, hi: %d)\n", fileSize, fileSize64.lo, fileSize64.hi);
 
-  pBuffer = malloc(recvBufferSize);
+  pBuffer = _alloc_dma_memory(recvBufferSize);
 
   if (!pBuffer) {
     uart_printf("failed to create SHA-256 working buffer!\n");
@@ -202,7 +202,7 @@ static int performUpdate(int clientFd) {
     bytesRead += chunkSize;
   }
 
-  free(pBuffer);
+  _free_dma_memory(pBuffer);
   FIO_CloseFile(pFile);
 
   uint8_t pSha256Hash[32];
