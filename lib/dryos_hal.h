@@ -85,14 +85,14 @@ typedef struct {
 // File I/O
 //-------------------------------------------------------------------------------------------------------------
 
-FILE* FIO_CreateFile(const char* pFileName);
-FILE* FIO_OpenFile(const char* pFileName, uint32_t mode);
+FILE* _FIO_CreateFile(const char* pFileName);
+FILE* _FIO_OpenFile(const char* pFileName, uint32_t mode);
 int FIO_CloseFile(FILE* pStream);
-int FIO_ReadFile(FILE* pFile, void* pBuffer, size_t count);
-int FIO_WriteFile(FILE* pStream, const void* ptr, size_t count);
-int FIO_RemoveFile(const char* pFileName);
-int FIO_RenameFile(const char* pSrc, const char* pDst);
-int FIO_GetFileSize(const char* pFileName, size64_t* pSize);
+int _FIO_ReadFile(FILE* pFile, void* pBuffer, size_t count);
+int _FIO_WriteFile(FILE* pStream, const void* ptr, size_t count);
+int _FIO_RemoveFile(const char* pFileName);
+int _FIO_RenameFile(const char* pSrc, const char* pDst);
+int _FIO_GetFileSize(const char* pFileName, size64_t* pSize);
 
 //-------------------------------------------------------------------------------------------------------------
 // MD5

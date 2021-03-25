@@ -131,18 +131,18 @@ static const char* stripDriveLetter(const char* pFileName) {
   return &pFileName[3];
 }
 
-FILE* FIO_CreateFile(const char* pFileName) {
-  return FIO_OpenFile(pFileName, O_WRONLY);
+FILE* _FIO_CreateFile(const char* pFileName) {
+  return _FIO_OpenFile(pFileName, O_WRONLY);
 }
 
-FILE* FIO_OpenFile(const char* pFileName, uint32_t mode) {
+FILE* _FIO_OpenFile(const char* pFileName, uint32_t mode) {
   const char* pMode = "rb";
 
   if (mode & O_WRONLY)
     pMode = "wb";
 
   if (!pMode) {
-    uart_printf("FIO_OpenFile: invalid mode 0x%X!\n", mode);
+    uart_printf("_FIO_OpenFile: invalid mode 0x%X!\n", mode);
 
     return (FILE*)-1;
   }
@@ -150,7 +150,7 @@ FILE* FIO_OpenFile(const char* pFileName, uint32_t mode) {
   FILE* pFile = fopen(stripDriveLetter(pFileName), pMode);
 
   if (!pFile) {
-    uart_printf("FIO_OpenFile: failed to open file '%s'!\n", pFileName);
+    uart_printf("_FIO_OpenFile: failed to open file '%s'!\n", pFileName);
     return (FILE*)-1;
   }
 
@@ -161,37 +161,37 @@ int FIO_CloseFile(FILE* pStream) {
   return fclose(pStream);
 }
 
-int FIO_ReadFile(FILE* pFile, void* pBuffer, size_t count) {
+int _FIO_ReadFile(FILE* pFile, void* pBuffer, size_t count) {
   return fread(pBuffer, 1, count, pFile);
 }
 
-int FIO_WriteFile(FILE* pStream, const void* ptr, size_t count) {
+int _FIO_WriteFile(FILE* pStream, const void* ptr, size_t count) {
   return fwrite(ptr, 1, count, pStream);
 }
 
-int FIO_RemoveFile(const char* pFileName) {
+int _FIO_RemoveFile(const char* pFileName) {
   return remove(stripDriveLetter(pFileName));
 }
 
-int FIO_RenameFile(const char* pSrc, const char* pDst) {
+int _FIO_RenameFile(const char* pSrc, const char* pDst) {
   return rename(stripDriveLetter(pSrc), stripDriveLetter(pDst));
 }
 
-int FIO_GetFileSize(const char* pFileName, size64_t* pSize) {
+int _FIO_GetFileSize(const char* pFileName, size64_t* pSize) {
   if (!pSize)
     return -1;
 
   FILE* pFile = fopen(stripDriveLetter(pFileName), "rb");
 
   if (!pFile) {
-    uart_printf("FIO_GetFileSize: failed to open file");
+    uart_printf("_FIO_GetFileSize: failed to open file");
     return -1;
   }
 
   fseek(pFile, 0L, SEEK_END);
 
   if ((pSize->lo = ftell(pFile)) < 0) {
-    uart_printf("FIO_GetFileSize: ftell failed\n");
+    uart_printf("_FIO_GetFileSize: ftell failed\n");
     return -1;
   }
 

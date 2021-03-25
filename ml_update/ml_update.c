@@ -98,9 +98,9 @@ static int performUpdate(int clientFd) {
 
   const char* pTempFile = "B:/FILE.TMP";
 
-  FIO_RemoveFile(pTempFile);
+  _FIO_RemoveFile(pTempFile);
 
-  FILE* pFile = FIO_CreateFile(pTempFile);
+  FILE* pFile = _FIO_CreateFile(pTempFile);
 
   if (pFile == (FILE*)-1) {
     printError("Unable to create temporary file!\n");
@@ -126,7 +126,7 @@ static int performUpdate(int clientFd) {
 
     int bytesWritten;
 
-    if ((bytesWritten = FIO_WriteFile(pFile, pBuffer, chunkSize)) != chunkSize) {
+    if ((bytesWritten = _FIO_WriteFile(pFile, pBuffer, chunkSize)) != chunkSize) {
       uart_printf("write to file failed. %d bytes written but expected to write %d!\n", bytesWritten, chunkSize);
       break;
     }
@@ -157,7 +157,7 @@ static int performUpdate(int clientFd) {
 
   size64_t fileSize64 = {0};
 
-  if (FIO_GetFileSize(pTempFile, &fileSize64) == -1) {
+  if (_FIO_GetFileSize(pTempFile, &fileSize64) == -1) {
     uart_printf("failed to get file size! aborting\n");
     return 1;
   }
@@ -178,7 +178,7 @@ static int performUpdate(int clientFd) {
 
   uart_printf("Start SHA-256 calc\n");
 
-  pFile = FIO_OpenFile(pTempFile, O_RDONLY);
+  pFile = _FIO_OpenFile(pTempFile, O_RDONLY);
 
   if (pFile == (FILE*)-1) {
     printError("Unable to reopen temporary file!\n");
@@ -189,7 +189,7 @@ static int performUpdate(int clientFd) {
 
   int bytesRead;
   for (bytesRead = 0; bytesRead < fileSize;) {
-    int chunkSize = FIO_ReadFile(pFile, pBuffer, recvBufferSize);
+    int chunkSize = _FIO_ReadFile(pFile, pBuffer, recvBufferSize);
 
     if (chunkSize < 0) {
       uart_printf("error on reading file during SHA-256 check!\n");
@@ -236,11 +236,11 @@ static int performUpdate(int clientFd) {
   char pTargetFileName[128];
   snprintf(pTargetFileName, sizeof(pTargetFileName), "B:/%s", req.pFileName);
 
-  FIO_RemoveFile(pTargetFileName);
+  _FIO_RemoveFile(pTargetFileName);
 
   int error;
 
-  if ((error = FIO_RenameFile(pTempFile, pTargetFileName)) != 0) {
+  if ((error = _FIO_RenameFile(pTempFile, pTargetFileName)) != 0) {
     uart_printf("[%d] Error on rename '%s' -> '%s'!\n", error, pTempFile, pTargetFileName);
     return 1;
   }
