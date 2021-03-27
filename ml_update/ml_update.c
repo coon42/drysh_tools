@@ -164,9 +164,6 @@ static int performUpdate(int clientFd) {
 
   uint32_t fileSize = fileSize64.lo; // TODO: will break on files bigger than 4GB! Fix!
 
-  void* pSha256Ctx = 0;
-  Sha256Init(&pSha256Ctx);
-
   uart_printf("file size of reopened file is: %d (lo: %d, hi: %d)\n", fileSize, fileSize64.lo, fileSize64.hi);
 
   pBuffer = _alloc_dma_memory(recvBufferSize);
@@ -186,6 +183,14 @@ static int performUpdate(int clientFd) {
   }
 
   uart_printf("reopened pFile=%X\n", pFile);
+
+  int error;
+
+  void* pSha256Ctx = 0;
+  if ((error = Sha256Init(&pSha256Ctx))) {
+    uart_printf("Error on Sha256Init: %d\n", error);
+    return 1;
+  }
 
   int bytesRead;
   for (bytesRead = 0; bytesRead < fileSize;) {
@@ -237,8 +242,6 @@ static int performUpdate(int clientFd) {
   snprintf(pTargetFileName, sizeof(pTargetFileName), "B:/%s", req.pFileName);
 
   _FIO_RemoveFile(pTargetFileName);
-
-  int error;
 
   if ((error = _FIO_RenameFile(pTempFile, pTargetFileName)) != 0) {
     uart_printf("[%d] Error on rename '%s' -> '%s'!\n", error, pTempFile, pTargetFileName);
