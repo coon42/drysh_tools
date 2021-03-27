@@ -5,6 +5,9 @@
 #include <netinet/in.h>
 #include <errno.h>
 
+#include "mbedtls/config.h"
+#include "mbedtls/platform.h"
+#include "mbedtls/sha256.h"
 #include "dryos_hal.h"
 
 //-------------------------------------------------------------------------------------------------------------
@@ -266,52 +269,40 @@ void Md5_FinalAndFree(Md5Ctx* pMd5Ctx, uint8_t* pMd5HashOut) {
 //-------------------------------------------------------------------------------------------------------------
 
 int Sha256Init(void** ppSha256Ctx) {
-  if (ppSha256Ctx)
+  if (!ppSha256Ctx)
     return -1;
 
-  *ppSha256Ctx = malloc(228);
+  mbedtls_sha256_context* pCtx = (mbedtls_sha256_context*)malloc(sizeof(mbedtls_sha256_context));
+  mbedtls_sha256_init(pCtx);
+
+  int error;
+
+  if ((error = mbedtls_sha256_starts_ret(pCtx, 0)) != 0)
+    return error;
+
+  *ppSha256Ctx = pCtx;
 
   return 0;
 }
 
 int ShaXUpdate(void* pCtx, void* pTransformFunction, uint8_t* pData, size_t size) {
-  return 0; // TODO: implement
+  int error;
+
+  if ((error = mbedtls_sha256_update_ret(pCtx, (const unsigned char*)pData, size)) != 0)
+    return -1;
+
+  return 0;
 }
 
 void Sha256_Transform(void* pData, uint32_t* pH) {
-
+  // not implemented in HAL
 }
 
-// TODO: super dirty hack! Do proper SHA-256 calculation!
-
 int ShaXFinal(void* pCtx, void* pTransFormFunction, uint8_t* pFinalHash) {
-  FILE* pFile = popen("/usr/bin/sha256sum autoexec.bin", "r");
+  int error;
 
-  if (pFile == NULL) {
-    printf("Failed to run command\n" );
-    exit(1);
-  }
-
-  char pOutput[1024];
-  fgets(pOutput, sizeof(pOutput), pFile);
-  pclose(pFile);
-
-  const char* p = pOutput;
-
-  for (int i = 0; i < 32; ++i) {
-    char pByte[3] = {0};
-    pByte[0] = p[0];
-    pByte[1] = p[1];
-
-    int val;
-    sscanf(pByte, "%02X", &val);
-
-    pFinalHash[i] = (uint8_t)val;
-
-    p += 2;
-  }
-
-  printf("\n");
+  if ((error = mbedtls_sha256_finish_ret(pCtx, pFinalHash)) != 0)
+    return -1;
 
   return 0;
 }
@@ -319,6 +310,7 @@ int ShaXFinal(void* pCtx, void* pTransFormFunction, uint8_t* pFinalHash) {
 void ShaXFree(void** ppSha256Ctx) {
   if (ppSha256Ctx) {
     if (*ppSha256Ctx)
-      free(*ppSha256Ctx);
+      mbedtls_sha256_free(*ppSha256Ctx);
   }
 }
+

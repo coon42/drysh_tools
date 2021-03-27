@@ -80,7 +80,21 @@ int main(int argc, char const* pArgv[]) {
 
   msg.fileSize = fileSize;
 
-  ShaXFinal(0, 0, msg.pSha256Hash); // TODO: dirty hack! calculate SHA-256 hash properly!
+  void* pSha256Ctx;
+  Sha256Init(&pSha256Ctx);
+
+  uint8_t pBuffer[1024] = {0};
+
+  int bytesRead;
+  for (bytesRead = 0; bytesRead < fileSize;) {
+    size_t chunkSize = fread(pBuffer, 1, sizeof(pBuffer), pFile);
+    ShaXUpdate(pSha256Ctx, 0, pBuffer, chunkSize);
+    bytesRead += chunkSize;
+  }
+
+  ShaXFinal(pSha256Ctx, 0, msg.pSha256Hash);
+  ShaXFree(&pSha256Ctx);
+  rewind(pFile);
 
   msg.protocolVersion = 1;
 
@@ -99,8 +113,6 @@ int main(int argc, char const* pArgv[]) {
   }
 
   printf("Now transmitting...\n");
-
-  char pBuffer[1024] = {0};
 
   int bytesSent;
 
