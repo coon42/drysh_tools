@@ -10,10 +10,15 @@ vpath %.c ../lib
 
 all: server client
 
-server:
+mbedtls:
+	$(MAKE) -C ../lib/mbedtls
+
+../lib/mbedtls/library/libmbedcrypto.a: mbedtls
+
+server: ../lib/mbedtls/library/libmbedcrypto.a
 	$(CC) $(CFLAGS) ml_update.c ../lib/dryos_hal.c ../lib/mbedtls/library/libmbedcrypto.a -o server
 
-client:
+client: ../lib/mbedtls/library/libmbedcrypto.a
 	$(CC) $(CFLAGS) client.c ../lib/dryos_hal.c ../lib/mbedtls/library/libmbedcrypto.a -o client
 
 clean:
