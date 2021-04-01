@@ -3,6 +3,7 @@ BINPATH=/usr/bin
 CC=$(BINPATH)/gcc
 CFLAGS  = -g -Wall
 CFLAGS += -I../lib
+CFLAGS += -I../lib/mbedtls/include
 
 vpath %.c ../lib
 
