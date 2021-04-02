@@ -4,6 +4,9 @@
 #include <stdlib.h>
 #include <netinet/in.h>
 #include <errno.h>
+#include <string.h>
+
+#include <ini.h>
 
 #include "mbedtls/config.h"
 #include "mbedtls/platform.h"
@@ -26,6 +29,10 @@ int* errno_get_pointer_to() {
   return &errno;
 }
 
+int call(const char* pFunctionName, ...) {
+  return 0; // dummy for DryOS stub
+}
+
 int uart_printf(const char* pFormat, ...) {
   va_list args;
   va_start(args, pFormat);
@@ -40,10 +47,8 @@ void printError(const char* pErrorMsg) {
   perror(pErrorMsg);
 }
 
-int wifiConnect() {
-  uart_printf("TODO: connect to wifi. Assume it worked for now.\n");
-
-  return 0;
+int wlanconnect(WlanSettings_t* pWlanSettings) {
+  return 0; // dummy for DryOS stub
 }
 
 //-------------------------------------------------------------------------------------------------------------

@@ -14,6 +14,7 @@ void _free_dma_memory(void* ptr);
 int uart_printf(const char* pFormat, ...);
 void printError(const char* pErrorMsg);
 void reboot();
+int call(const char* pFunctionName, ...);
 
 //-------------------------------------------------------------------------------------------------------------
 // Sockets
@@ -60,7 +61,40 @@ int socket_accept(int sockfd, DrySockaddr_in* addr, socklen_t* addrlen);
 int socket_recv(int sockfd, void* buf, size_t len, int flags);
 int socket_send(int sockfd, const void* buf, size_t len, int flags);
 
-int wifiConnect();
+typedef enum WlanSettingsMode_t {
+  ADHOC_WIFI = 1,
+  INFRA = 2,
+  ADHOC_G = 3
+} WlanSettingsMode_t;
+
+typedef enum WlanSettingsAuthMode_t {
+  OPEN = 0,
+  SHARED = 1,
+  WPA2PSK = 5,
+  BOTH = 6
+} WlanSettingsAuthMode_t;
+
+typedef enum WlanSettingsCipherMode_t {
+  NONE = 0,
+  WEP = 1,
+  AES = 4
+} WlanSettingsCipherMode_t;
+
+typedef struct {
+  int a;                       // set to 0
+  int mode;                    // ADHOC_WIFI, INFRA, ADHOC_G
+  int modeSomething;           // set to 0 on INFRA
+  char pSSID[36];
+  int channel;
+  int authMode;                // OPEN, SHARED, WPA2PSK, BOTH
+  int cipherMode;              // NONE, WEP, AES
+  int f;                       // set to 0
+  int g;                       // set to 6 when using INFRA or BOTH
+  char pKey[63];
+  unsigned char pUnknown[121]; // set to 0
+} WlanSettings_t;
+
+int wlanconnect(WlanSettings_t* pWlanSettings);
 
 #define O_RDONLY             00
 #define O_WRONLY             01

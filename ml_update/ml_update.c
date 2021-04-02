@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <ini.h>
 #include <dryos_hal.h>
 
 #include "protocol.h"
@@ -251,6 +252,88 @@ static int performUpdate(int clientFd) {
   return 0;
 }
 
+typedef struct {
+  char pIp[16];
+  WlanSettings_t settings;
+} UpdaterConfig_t;
+
+static int handler(void* pUser, const char* pSection, const char* pName, const char* pValue) {
+  UpdaterConfig_t* pConfig = (UpdaterConfig_t*)pUser;
+
+  #define MATCH(s, n) strcmp(pSection, s) == 0 && strcmp(pName, n) == 0
+  if (MATCH("wifi", "ip"))
+    strncpy(pConfig->pIp, pValue, sizeof(pConfig->pIp));
+  else if (MATCH("wifi", "ssid"))
+    strncpy(pConfig->settings.pSSID, pValue, sizeof(pConfig->settings.pSSID));
+  else if (MATCH("wifi", "password"))
+    strncpy(pConfig->settings.pKey, pValue, sizeof(pConfig->settings.pKey));
+  else if (MATCH("wifi", "channel"))
+    pConfig->settings.channel = atoi(pValue);
+  else if (MATCH("wifi", "authmode")) {
+    if (strncmp(pValue, "open", 16) == 0)
+      pConfig->settings.authMode = OPEN;
+    else if (strncmp(pValue, "shared", 16) == 0)
+      pConfig->settings.authMode = SHARED;
+    else if (strncmp(pValue, "wpa2psk", 16) == 0)
+      pConfig->settings.authMode = WPA2PSK;
+    else if (strncmp(pValue, "both", 16) == 0)
+      pConfig->settings.authMode = BOTH;
+  }
+  else if (MATCH("wifi", "ciphermode")) {
+    if (strncmp(pValue, "none", 16) == 0)
+      pConfig->settings.cipherMode = NONE;
+    else if (strncmp(pValue, "wep", 16) == 0)
+      pConfig->settings.cipherMode = WEP;
+    else if (strncmp(pValue, "aes", 16) == 0)
+      pConfig->settings.cipherMode = AES;
+  }
+  else
+    return 0; // unknown section/name, error
+
+  return 1;
+}
+
+static int wifiConnect() {
+  UpdaterConfig_t config;
+  memset(&config, 0, sizeof(UpdaterConfig_t));
+
+  const char* pConfigFileName = "wificonfig.ini";
+
+  if (ini_parse(pConfigFileName, handler, &config) < 0) {
+    uart_printf("Can't load '%s'\n", pConfigFileName);
+    return 1;
+  }
+
+  config.settings.mode = INFRA;
+  config.settings.g = 6; // set to 6 when using INFRA or BOTH
+
+  uart_printf("Config loaded from 'wificonfig.ini': \n"
+    "ssid=%s\n"
+    "password=%s\n"
+    "channel=%d\n"
+    "authMode=%d\n"
+    "cipherMode=%d\n",
+    config.settings.pSSID, config.settings.pKey, config.settings.channel,
+    config.settings.authMode, config.settings.cipherMode);
+
+  uart_printf("exec NwLimeOn\n");
+  call("NwLimeOn");
+  uart_printf("exec wlanchk\n");
+  call("wlanchk");
+
+  uart_printf("now connecting to '%s' AP...\n", config.settings.pSSID);
+  int wlanResult = wlanconnect(&config.settings);
+  uart_printf("wlan connect result: %d\n", wlanResult);
+
+  if (wlanResult != 0)
+    return wlanResult;
+
+  uart_printf("set ip to: %s\n", config.pIp);
+  call("wlanipset", config.pIp);
+
+  return 0;
+}
+
 int drysh_ml_update(int argc, char const *argv[]) {
   int error;
 
@@ -293,3 +376,4 @@ int drysh_ml_update(int argc, char const *argv[]) {
 int main(int argc, char const* pArgv[]) {
   return drysh_ml_update(argc, pArgv);
 }
+
